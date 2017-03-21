@@ -39,26 +39,20 @@ VOLUME /root/composer
 # Environmental Variables
 ENV COMPOSER_HOME /root/composer
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    composer selfupdate
-    
+
+
+
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer.phar \
+    && composer.phar global require --no-progress "fxp/composer-asset-plugin:~1.2.2" \
+    && composer.phar global require --no-progress "codeception/codeception=2.0.*" \
+    && composer.phar global require --no-progress "codeception/specify=*" \
+    && composer.phar global require --no-progress "codeception/verify=*"
+    && composer.phar gloabl require --no-progress "phpunit/phpunit" \
+    && composer.phar global require --no-progress "squizlabs/php_codesniffer" \
+    && composer.phar gloabl require --no-grogress "phpmd/phpmd" \
+    && composer selfupdate
+
 # Goto temporary directory.
 WORKDIR /tmp
 
-# Run composer and phpunit installation.
-RUN composer require "phpunit/phpunit=5.*" --prefer-source --no-interaction && \
-    ln -s /tmp/vendor/bin/phpunit /usr/local/bin/phpunit
-
-# Run composer and codesniffer installation.
-RUN composer require "squizlabs/php_codesniffer=*" --prefer-source --no-interaction && \
-    ln -s /tmp/vendor/bin/phpcs /usr/local/bin/phpcs
-# RUN composer and phpmd installation
-RUN composer require "phpmd/phpmd=2.*" --prefer-source --no-interaction && \
-    ln -s /tmp/vendor/bin/phpmd /usr/local/bin/phpmd
-
-RUN php --version
-RUN composer --version
-RUN phpunit --version
-RUN phpcs --version
-RUN phpmd --version
